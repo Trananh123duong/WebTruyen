@@ -1,0 +1,56 @@
+# docker-compose.yml
+version: "3.8"
+services:
+  nginx:
+    container_name: nginx
+    build: ./docker/nginx
+    command: nginx -g "daemon off;"
+    links:
+      - php
+    ports:
+      - "8083:80"
+    volumes:
+      - ./logs/nginx:/var/log/nginx
+      - ./src/helloworld:/var/www/html/helloworld
+  php:
+    container_name: php
+    build: ./docker/php
+    links:
+      - mysql
+    ports:
+      - "9000:9000"
+    volumes:
+      - ./src/helloworld:/var/www/html/helloworld
+    working_dir: /var/www/html/helloworld
+  composer:
+    container_name: composer
+    image: composer/composer
+    volumes:
+      - ./src/helloworld:/var/www/html/helloworld
+    working_dir: /var/www/html/helloworld
+    command: install
+  mysql:
+    image: mysql:8.0.27
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: '<root-password>'
+      MYSQL_DATABASE: helloworld
+      MYSQL_USER: helloworld
+      MYSQL_PASSWORD: '<db-password>'
+    ports:
+      - "33062:3306"
+    volumes:
+      - ./database/mysql:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: pma
+    links:
+      - mysql
+    environment:
+      MYSQL_USERNAME: "${DB_USERNAME}"
+      MYSQL_ROOT_PASSWORD: "${DB_PASSWORD}"
+      PMA_HOST: mysql
+    restart: always
+    ports:
+      - 8085:80
