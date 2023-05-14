@@ -110,6 +110,7 @@ class CrawlerDataCommand extends Command
             $this->warn("Crawl story: " . $title);
             // $story->categories->sync($newCategories);
 
+            // $newCategoriesId = array();
             $crawler->filter('div.info > div:nth-child(3) > a')->each(function ($category) use ($story) {
                 $category = $category->text();
                 $newCategory = Category::firstOrCreate(
@@ -121,20 +122,22 @@ class CrawlerDataCommand extends Command
                     ]
                 );
                 $this->warn("Crawl category: " . $category);
+                // $newCategoriesId[] = $newCategory->id;
 
-                // $newCategory->story()->sync([$story->id]);
+                $newCategory->story()->sync($story->id);
 
-                $categoryStory = CategoryStory::firstOrCreate(
-                    [
-                        'category_id' => $newCategory->id,
-                        'story_id' => $story->id
-                    ],
-                    [
-                        'category_id' => $newCategory->id,
-                        'story_id' => $story->id
-                    ]
-                );
+                // $categoryStory = CategoryStory::firstOrCreate(
+                //     [
+                //         'category_id' => $newCategory->id,
+                //         'story_id' => $story->id
+                //     ],
+                //     [
+                //         'category_id' => $newCategory->id,
+                //         'story_id' => $story->id
+                //     ]
+                // );
             });
+            // $story->categories()->sync($newCategoriesId);
             $this->crawlerListChapter($story->id, $slug, $story->title);
         } catch (\Exception $e) {
             Log::error($e->getMessage());
