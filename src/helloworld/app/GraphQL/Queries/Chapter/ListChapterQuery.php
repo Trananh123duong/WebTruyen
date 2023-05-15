@@ -10,6 +10,7 @@ use GraphQL\Type\Definition\Type;
 use Rebing\GraphQL\Support\Query;
 use Rebing\GraphQL\Support\SelectFields;
 use Rebing\GraphQL\Support\Facades\GraphQL;
+use App\GraphQL\Middleware\ResolvePage;
 use App\Models\Chapter;
 
 class ListChapterQuery extends Query
@@ -19,9 +20,13 @@ class ListChapterQuery extends Query
         'description' => 'A query'
     ];
 
+    protected $middleware = [
+        ResolvePage::class,
+    ];
+
     public function type(): Type
     {
-        return Type::listOf(GraphQL::type('Chapter'));
+        return GraphQL::paginate('Chapter');
     }
 
     public function args(): array
@@ -45,8 +50,6 @@ class ListChapterQuery extends Query
 
     public function resolve($root, array $args, $context, ResolveInfo $resolveInfo, Closure $getSelectFields)
     {
-        return Chapter::offset($args['page'] ?? 0)
-            ->limit($args['limit'] ?? 5)
-            ->get();
+        return Chapter::paginate($args['limit'], ['*'], 'page', $args['page']);
     }
 }
