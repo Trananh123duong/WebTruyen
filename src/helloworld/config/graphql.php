@@ -77,7 +77,12 @@ return [
             'query' => [
                 // ExampleQuery::class,
                 'listCategory' => \App\GraphQL\Queries\Category\ListCategoryQuery::class,
-                'listStory' => \App\GraphQL\Queries\Story\ListStoryQuery::class
+
+                'listStory' => \App\GraphQL\Queries\Story\ListStoryQuery::class,
+                'detailStory' => \App\GraphQL\Queries\Story\DetailStoryQuery::class,
+
+                'listChapter' => \App\GraphQL\Queries\Chapter\ListChapterQuery::class,
+                'detailChapter' => \App\GraphQL\Queries\Chapter\DetailChapterQuery::class,
             ],
             'mutation' => [
                 // ExampleMutation::class,

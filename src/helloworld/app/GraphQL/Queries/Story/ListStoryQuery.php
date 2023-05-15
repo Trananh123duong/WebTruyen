@@ -12,18 +12,12 @@ use Rebing\GraphQL\Support\Query;
 use Rebing\GraphQL\Support\SelectFields;
 use Rebing\GraphQL\Support\Facades\GraphQL;
 use App\Models\Story;
-use App\GraphQL\Fields\ListStoryField;
-use App\GraphQL\Middleware;
 
 class ListStoryQuery extends Query
 {
     protected $attributes = [
         'name' => 'listStory',
         'description' => 'A query'
-    ];
-
-    protected $middleware = [
-        Middleware\ResolvePage::class,
     ];
 
     public function type(): Type
@@ -51,12 +45,12 @@ class ListStoryQuery extends Query
                 'name' => 'type',
                 'type' => Type::int(),
             ],
-            'limit' => [
-                'name' => 'limit',
-                'type' => Type::int(),
-            ],
             'page' => [
                 'name' => 'page',
+                'type' => Type::int(),
+            ],
+            'limit' => [
+                'name' => 'limit',
                 'type' => Type::int(),
             ]
         ];
@@ -80,20 +74,10 @@ class ListStoryQuery extends Query
                 });
             }
         };
-        $story = Story::query()
-            ->where($searchKeyword)
-            ->with('categories');
-
-        $story = $story->simplePaginate($args['limit'] ?? 5);dd($story->items());
-
-        return [
-            'data' => $story->items(),
-            'paginatorInfo' => [
-                // 'total' => $story->total(),
-                'perPage' => $story->perPage(),
-                'currentPage' => $story->currentPage(),
-                // 'lastPage' => $story->lastPage(),
-            ],
-        ];
+        return Story::where($searchKeyword)
+            ->with('categories')
+            ->offset($args['page'] ?? 0)
+            ->limit($args['limit'] ?? 5)
+            ->get();
     }
 }
